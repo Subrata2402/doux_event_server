@@ -34,7 +34,7 @@ app.use('/api', postRoutes);
 app.use('/api', getRoutes);
 
 app.get('/', (_, res) => {
-  res.send('Hello World from Doux Event App');
+  res.send('Welcome to Doux Event App');
 });
 
 const server = createServer(app);
