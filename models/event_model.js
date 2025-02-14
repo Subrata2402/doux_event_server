@@ -25,6 +25,10 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  category: {
+    type: String,
+    required: true
+  },
   attendees: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"

@@ -7,6 +7,7 @@ const createEvent = async (req, res) => {
       description: req.body.description,
       date: req.body.date,
       time: req.body.time,
+      category: req.body.category,
       image: req.file.filename || "",
       location: req.body.location,
       organizer: req.user._id
