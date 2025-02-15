@@ -1,5 +1,25 @@
 const Event = require("../models/event_model");
 
+/**
+ * Creates a new event.
+ *
+ * @async
+ * @function createEvent
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {string} req.body.name - The name of the event.
+ * @param {string} req.body.description - The description of the event.
+ * @param {string} req.body.date - The date of the event.
+ * @param {string} req.body.time - The time of the event.
+ * @param {string} req.body.category - The category of the event.
+ * @param {Object} req.file - The file object.
+ * @param {string} req.file.filename - The filename of the uploaded image.
+ * @param {string} req.body.location - The location of the event.
+ * @param {Object} req.user - The user object.
+ * @param {string} req.user._id - The ID of the user creating the event.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the event is created.
+ */
 const createEvent = async (req, res) => {
   try {
     const event = new Event({
@@ -19,6 +39,19 @@ const createEvent = async (req, res) => {
   }
 }
 
+/**
+ * Controller to handle joining an event.
+ * 
+ * @param {Object} req - Express request object.
+ * @param {Object} req.params - Request parameters.
+ * @param {string} req.params.id - ID of the event to join.
+ * @param {Object} req.user - Authenticated user object.
+ * @param {Object} res - Express response object.
+ * 
+ * @returns {Promise<void>} - Sends a response indicating the result of the join operation.
+ * 
+ * @throws {Error} - Sends a 400 status with an error message if the operation fails.
+ */
 const joinEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -37,6 +70,17 @@ const joinEvent = async (req, res) => {
   }
 }
 
+/**
+ * Allows a user to leave an event.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.params - The request parameters.
+ * @param {string} req.params.id - The ID of the event to leave.
+ * @param {Object} req.user - The authenticated user object.
+ * @param {string} req.user._id - The ID of the authenticated user.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the operation is complete.
+ */
 const leaveEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -54,6 +98,16 @@ const leaveEvent = async (req, res) => {
   }
 }
 
+/**
+ * Retrieves a list of events from the database.
+ *
+ * @async
+ * @function eventList
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves to sending the response with the list of events.
+ * @throws {Error} - If there is an error fetching the events, sends a 400 status with an error message.
+ */
 const eventList = async (req, res) => {
   try {
     const events = await Event.find();
@@ -63,6 +117,17 @@ const eventList = async (req, res) => {
   }
 }
 
+/**
+ * Retrieves an event by its ID.
+ *
+ * @async
+ * @function getEvent
+ * @param {Object} req - The request object.
+ * @param {Object} req.params - The parameters of the request.
+ * @param {string} req.params.id - The ID of the event to retrieve.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} Sends the event data if found, otherwise sends an error message.
+ */
 const getEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -75,6 +140,28 @@ const getEvent = async (req, res) => {
   }
 }
 
+/**
+ * Updates an existing event.
+ *
+ * @async
+ * @function updateEvent
+ * @param {Object} req - The request object.
+ * @param {Object} req.params - The request parameters.
+ * @param {string} req.params.id - The ID of the event to update.
+ * @param {Object} req.user - The authenticated user object.
+ * @param {string} req.user._id - The ID of the authenticated user.
+ * @param {Object} req.body - The request body.
+ * @param {string} req.body.title - The new title of the event.
+ * @param {string} req.body.description - The new description of the event.
+ * @param {string} req.body.date - The new date of the event.
+ * @param {string} req.body.time - The new time of the event.
+ * @param {Object} req.file - The uploaded file object.
+ * @param {string} req.file.filename - The filename of the uploaded image.
+ * @param {string} req.body.location - The new location of the event.
+ * @param {string} req.body.category - The new category of the event.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the event is updated.
+ */
 const updateEvent = async (req, res) => {
   try {
     const event = await Event.findOne({ _id: req.params.id, organizer: req.user._id });
@@ -87,6 +174,7 @@ const updateEvent = async (req, res) => {
     event.time = req.body.time;
     event.image = req.file.filename || event.image;
     event.location = req.body.location;
+    event.category = req.body.category;
     await event.save();
     res.status(200).send({ success: true, message: "Event updated successfully" });
   } catch (error) {
@@ -94,6 +182,20 @@ const updateEvent = async (req, res) => {
   }
 }
 
+/**
+ * Deletes an event based on the provided event ID and the organizer's user ID.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} req.params - The request parameters.
+ * @param {string} req.params.id - The ID of the event to delete.
+ * @param {Object} req.user - The authenticated user object.
+ * @param {string} req.user._id - The ID of the user making the request.
+ * @param {Object} res - The response object.
+ * 
+ * @returns {Promise<void>} - A promise that resolves to void.
+ * 
+ * @throws {Error} - If there is an error during the deletion process.
+ */
 const deleteEvent = async (req, res) => {
   try {
     const event = await Event.findOneAndDelete({ _id: req.params.id, organizer: req.user._id });

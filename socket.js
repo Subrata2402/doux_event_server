@@ -1,5 +1,10 @@
 const { Server } = require('socket.io');
 
+/**
+ * Sets up the socket.io server with the given HTTP server.
+ *
+ * @param {import('http').Server} server - The HTTP server to attach the socket.io server to.
+ */
 function setupSocket(server) {
   const io = new Server(server, {
     cors: {

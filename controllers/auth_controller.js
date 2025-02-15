@@ -2,6 +2,18 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user_model");
 const sendMail = require("./mail_controller");
 
+/**
+ * Registers a new user.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {string} req.body.name - The name of the user.
+ * @param {string} req.body.email - The email of the user.
+ * @param {string} req.body.password - The password of the user.
+ * @param {string} req.body.cpassword - The confirmation password of the user.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the user is registered.
+ */
 const register = async (req, res) => {
   const userExist = await User.findOne({ email: req.body.email });
   if (userExist) {
@@ -29,6 +41,16 @@ const register = async (req, res) => {
   }
 }
 
+/**
+ * Verifies the user's email using the provided OTP.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {string} req.body.email - The email address to verify.
+ * @param {string} req.body.otp - The OTP provided for verification.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - Sends a response with the verification result.
+ */
 const verifyEmail = async (req, res) => {
   try {
     const email = req.body.email;
@@ -52,6 +74,17 @@ const verifyEmail = async (req, res) => {
   }
 }
 
+/**
+ * Resends an OTP to the user's email for verification.
+ *
+ * @async
+ * @function resendOtp
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {string} req.body.email - The email of the user requesting the OTP.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} Sends a response with the status and message of the OTP resend operation.
+ */
 const resendOtp = async (req, res) => {
   try {
     const email = req.body.email;
@@ -74,6 +107,17 @@ const resendOtp = async (req, res) => {
   }
 }
 
+/**
+ * Handles user login.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {string} req.body.email - The email of the user.
+ * @param {string} req.body.password - The password of the user.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves to void.
+ * @throws {Error} - If there is an error during the login process.
+ */
 const login = async (req, res) => {
   try {
     const email = req.body.email;
@@ -105,6 +149,15 @@ const login = async (req, res) => {
   }
 }
 
+/**
+ * Handles guest user login.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The body of the request.
+ * @param {string} req.body.browserId - The browser ID of the guest user.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - Returns a promise that resolves to void.
+ */
 const guestLogin = async (req, res) => {
   const browserId = req.body.browserId;
   if (!browserId) {
@@ -130,6 +183,16 @@ const guestLogin = async (req, res) => {
   }
 }
 
+/**
+ * Fetches the profile details of the authenticated user.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.user - The authenticated user object.
+ * @param {string} req.user._id - The ID of the authenticated user.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves to void.
+ * @throws {Error} - If there is an error fetching the user profile details.
+ */
 const profileDetails = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password -otp -tokens");
@@ -139,4 +202,11 @@ const profileDetails = async (req, res) => {
   }
 }
 
-module.exports = { register, verifyEmail, login, resendOtp, profileDetails, guestLogin };
+module.exports = {
+  register,
+  verifyEmail,
+  login,
+  resendOtp,
+  profileDetails,
+  guestLogin
+};
