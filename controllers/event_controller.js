@@ -130,11 +130,11 @@ const eventList = async (req, res) => {
  */
 const getEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate("organizer", "name email").populate("attendees", "name");
     if (!event) {
       return res.status(404).send({ success: false, message: "Event not found" });
     }
-    res.status(200).send({ success: true, event: event });
+    res.status(200).send({ success: true, message: "Event retrieved successfully", data: event });
   } catch (error) {
     res.status(400).send({ success: false, message: "Failed to fetch event", error: error });
   }

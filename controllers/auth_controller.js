@@ -171,7 +171,7 @@ const guestLogin = async (req, res) => {
   }
   try {
     const user = new User({
-      name: "Guest User",
+      name: "Guest" + Math.floor(1000 + Math.random() * 9000),
       isGuest: true,
       browserId: browserId
     });

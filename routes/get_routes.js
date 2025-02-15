@@ -10,5 +10,6 @@ router.get('/event/list', eventController.eventList);
 router.get('/event/:id/join', authenticate, eventController.joinEvent);
 router.get('/event/:id/leave', authenticate, eventController.leaveEvent);
 router.get('/event/:id/delete', authenticate, eventController.deleteEvent);
+router.get('/event/:id', eventController.getEvent);
 
 module.exports = router;
