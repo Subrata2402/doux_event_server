@@ -54,17 +54,17 @@ const createEvent = async (req, res) => {
  */
 const joinEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate("organizer", "name email").populate("attendees", "name");
     if (!event) {
       return res.status(404).send({ success: false, message: "Event not found" });
     }
-    if (event.attendees.includes(req.user._id)) {
+    if (event.attendees.some(attendee => attendee._id.toString() === req.user._id.toString())) {
       return res.status(400).send({ success: false, message: "You have already joined this event" });
     }
     event.attendees.push(req.user._id);
     await event.save();
-
-    res.status(200).send({ success: true, message: "You have joined the event", data: event });
+    const populatedEvent = await Event.findById(req.params.id).populate("organizer", "name email").populate("attendees", "name");
+    res.status(200).send({ success: true, message: "You have joined the event", data: populatedEvent });
   } catch (error) {
     res.status(400).send({ success: false, message: "Failed to join event", error: error });
   }
@@ -83,14 +83,14 @@ const joinEvent = async (req, res) => {
  */
 const leaveEvent = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).populate("organizer", "name email").populate("attendees", "name");
     if (!event) {
       return res.status(404).send({ success: false, message: "Event not found" });
     }
-    if (!event.attendees.includes(req.user._id)) {
+    if (!event.attendees.some(attendee => attendee._id.toString() === req.user._id.toString())) {
       return res.status(400).send({ success: false, message: "You have not joined this event" });
     }
-    event.attendees = event.attendees.filter(attendee => attendee.toString() !== req.user._id.toString());
+    event.attendees = event.attendees.filter(attendee => attendee._id.toString() !== req.user._id.toString());
     await event.save();
     res.status(200).send({ success: true, message: "You have left the event", data: event });
   } catch (error) {
@@ -202,7 +202,8 @@ const deleteEvent = async (req, res) => {
     if (!event) {
       return res.status(404).send({ success: false, message: "Event not found" });
     }
-    res.status(200).send({ success: true, message: "Event deleted successfully" });
+
+    res.status(200).send({ success: true, message: "Event deleted successfully", data: { _id: event._id, isDeleted: true } });
   } catch (error) {
     res.status(400).send({ success: false, message: "Failed to delete event", error: error });
   }
