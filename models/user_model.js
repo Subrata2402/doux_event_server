@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.generateAuthToken = async function () {
   const secret = fs.readFileSync("./keys/private.key", "utf8");
   try {
-    const token = jwt.sign({ _id: this._id.toString() }, secret, { expiresIn: '1d', algorithm: 'RS256' });
+    const token = jwt.sign({ _id: this._id.toString() }, secret, { expiresIn: '30d', algorithm: 'RS256' });
     this.tokens = this.tokens.concat({ token: token });
     await this.save();
     return token;
@@ -78,7 +78,7 @@ userSchema.methods.generateAuthToken = async function () {
 
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.password = bcrypt.hash(this.password, 10);
   }
   next();
 });

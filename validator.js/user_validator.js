@@ -33,7 +33,7 @@ const userValidator = {
     password: z.string({ required_error: "Password is required to reset" }).trim()
       .min(8, 'Password should be at least 8 characters long')
       .max(50, 'Password should be at most 50 characters long'),
-    confPassword: z.string({ required_error: "Confirm password is required to reset" }).trim()
+    cpassword: z.string({ required_error: "Confirm password is required to reset" }).trim()
       .min(8, 'Password should be at least 8 characters long')
       .max(50, 'Password should be at most 50 characters long'),
   })

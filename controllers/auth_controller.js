@@ -54,14 +54,14 @@ const register = async (req, res) => {
 const verifyEmail = async (req, res) => {
   try {
     const email = req.body.email;
-    const otp = req.body.otp;
+    const otp = req.body.otp?.trim();
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).send({ success: false, message: "Invalid Email" });
     }
-    if (user.emailVerified) {
-      return res.status(400).send({ success: false, message: "Email already verified" });
-    }
+    // if (user.emailVerified) {
+    //   return res.status(400).send({ success: false, message: "Email already verified" });
+    // }
     if (user.otp.id == otp && user.otp.expiredAt > new Date()) {
       user.emailVerified = true;
       await user.save();
@@ -85,15 +85,12 @@ const verifyEmail = async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} Sends a response with the status and message of the OTP resend operation.
  */
-const resendOtp = async (req, res) => {
+const sendOtp = async (req, res) => {
   try {
     const email = req.body.email;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).send({ success: false, message: "Invalid Email" });
-    }
-    if (user.emailVerified) {
-      return res.status(400).send({ success: false, message: "Email already verified" });
+      return res.status(400).send({ success: false, message: "User doesn't exist" });
     }
     user.otp = {
       id: Math.floor(100000 + Math.random() * 900000),
@@ -147,6 +144,30 @@ const login = async (req, res) => {
   catch (error) {
     res.status(400).json({ success: false, message: "User login failed", error: error });
   }
+}
+
+/**
+ * Resets the password for a user.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.body - The request body.
+ * @param {string} req.body.email - The email of the user.
+ * @param {string} req.body.password - The new password for the user.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the password is reset.
+ */
+const resetPassword = async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(400).json({ success: false, message: "Invalid Email" });
+        }
+        user.password = req.body.password;
+        await user.save();
+        res.status(200).json({ success: true, message: "Password reset successfully" });
+    } catch (error) {
+        res.status(400).json({ success: false, message: "Failed to reset password", error: error });
+    }
 }
 
 /**
@@ -206,7 +227,8 @@ module.exports = {
   register,
   verifyEmail,
   login,
-  resendOtp,
+  resetPassword,
+  sendOtp,
   profileDetails,
   guestLogin
 };
